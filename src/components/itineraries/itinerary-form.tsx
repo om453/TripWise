@@ -27,6 +27,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useItinerary } from '@/context/itinerary-context';
+import { useState } from 'react';
 
 const formSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters.'),
@@ -42,6 +43,7 @@ export function ItineraryForm() {
   const { toast } = useToast();
   const router = useRouter();
   const { addItinerary } = useItinerary();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,20 +59,28 @@ export function ItineraryForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      addItinerary(values);
-      toast({
-        title: 'Itinerary Created!',
-        description: 'Your new adventure has been saved.',
-      });
-      router.push('/');
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to create itinerary. Please try again.',
-      });
-    }
+    (async () => {
+      setIsLoading(true);
+      try {
+        await addItinerary(values);
+        // Check if activities were added (location found)
+        // This logic assumes addItinerary returns nothing, so we check after
+        // If you want more robust feedback, refactor addItinerary to return a status
+        toast({
+          title: 'Itinerary Created!',
+          description: 'Your new adventure has been saved.',
+        });
+        router.push('/');
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Failed to create itinerary. Please try again.',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    })();
   }
 
   return (
@@ -186,8 +196,8 @@ export function ItineraryForm() {
             />
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="ml-auto" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? 'Creating...' : 'Create Itinerary'}
+            <Button type="submit" className="ml-auto" disabled={form.formState.isSubmitting || isLoading}>
+              {isLoading ? 'Creating...' : 'Create Itinerary'}
             </Button>
           </CardFooter>
         </Card>

@@ -8,7 +8,6 @@ import { format } from 'date-fns';
 import type { Itinerary } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ItineraryMap } from './itinerary-map';
 import { AiSuggestions } from './ai-suggestions';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
@@ -108,18 +107,6 @@ export function ItineraryView({ itinerary }: { itinerary: Itinerary }) {
 
           <AiSuggestions location={itinerary.destination} activities={activitiesText} />
 
-        </div>
-        <div className="lg:col-span-1">
-          <Card className="sticky top-24">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><MapPin /> Itinerary Map</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="aspect-square w-full rounded-lg overflow-hidden">
-                <ItineraryMap activities={itinerary.activities} />
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

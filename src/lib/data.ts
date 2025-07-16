@@ -23,7 +23,7 @@ export function createItinerary(data: ItineraryData): Itinerary {
     id: Date.now().toString(),
     ...data,
     isFavorite: false,
-    activities: [],
+    activities: data.activities || [],
     photoHint: data.destination.split(',')[0].toLowerCase(),
   };
   // The context will handle adding this to its state and localStorage

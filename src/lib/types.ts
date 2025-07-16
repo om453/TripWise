@@ -13,6 +13,7 @@ export interface ItineraryData {
   category: 'adventure' | 'leisure' | 'work';
   photo: string;
   description: string;
+  activities?: Activity[];
 }
 
 export interface Activity {

@@ -3,11 +3,12 @@
 import * as React from 'react';
 import type { Itinerary, ItineraryData } from '@/lib/types';
 import { createItinerary, deleteItineraryApi } from '@/lib/data';
+import { useToast } from '@/hooks/use-toast';
 
 interface ItineraryContextType {
   itineraries: Itinerary[];
   toggleFavorite: (id: string) => void;
-  addItinerary: (itinerary: ItineraryData) => void;
+  addItinerary: (itinerary: ItineraryData) => Promise<void>;
   deleteItinerary: (id: string) => void;
   isLoading: boolean;
 }
@@ -45,8 +46,11 @@ export function ItineraryProvider({ children }: { children: React.ReactNode }) {
     );
   };
   
-  const addItinerary = (data: ItineraryData) => {
-    const newItinerary = createItinerary(data);
+  const addItinerary = async (data: ItineraryData) => {
+    const newItinerary = createItinerary({
+      ...data,
+      activities: [],
+    });
     setItineraries(prev => [newItinerary, ...prev]);
   };
 
