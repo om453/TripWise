@@ -20,21 +20,13 @@ export function ItineraryProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = React.useState(true); 
 
   React.useEffect(() => {
-    try {
-      const storedItineraries = localStorage.getItem('itineraries');
-      if (storedItineraries) {
-        setItineraries(JSON.parse(storedItineraries));
-      }
-    } catch (error) {
-        console.error("Failed to load itineraries from localStorage", error);
-    } finally {
-        setIsLoading(false);
-    }
+    setItineraries([]); // Always start empty, no localStorage or demo data
+    setIsLoading(false);
   }, []);
 
   React.useEffect(() => {
     if(!isLoading) {
-      localStorage.setItem('itineraries', JSON.stringify(itineraries));
+      // localStorage.setItem('itineraries', JSON.stringify(itineraries)); // Removed localStorage
     }
   }, [itineraries, isLoading]);
 

@@ -1,4 +1,4 @@
-# **App Name**: RoamFlow
+# **App Name**: TripWise
 
 ## Core Features:
 

@@ -11,9 +11,13 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '../ui/button';
 import { Plus, Compass } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
 export function ItineraryList({ showOnlyFavorites = false }: { showOnlyFavorites?: boolean }) {
   const { itineraries, toggleFavorite, deleteItinerary, isLoading } = useItinerary();
+  const { user } = useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get('q');
   const { toast } = useToast();
@@ -67,14 +71,22 @@ export function ItineraryList({ showOnlyFavorites = false }: { showOnlyFavorites
   }
 
   if (filteredItineraries.length === 0) {
+    const handleCreateClick = (e: React.MouseEvent) => {
+      if (!user) {
+        e.preventDefault();
+        router.push('/login');
+      }
+    };
     return (
       <div className="flex flex-col items-center justify-center text-center min-h-[calc(100vh-250px)]">
-        <Compass className="h-16 w-16 text-muted-foreground mb-4" />
-        <h2 className="text-2xl font-bold mb-2">No Itineraries Found</h2>
-        <p className="text-muted-foreground mb-6">Your next adventure awaits! Get started by creating a new itinerary.</p>
-        <Link href="/create">
-          <Button className="bg-accent hover:bg-accent/90">
-            <Plus className="mr-2 h-4 w-4" />
+        <Compass className="h-20 w-20 text-accent mb-6 animate-bounce" />
+        <h2 className="text-4xl font-extrabold mb-4 text-accent drop-shadow-lg">Start Your Next Adventure!</h2>
+        <p className="text-lg text-muted-foreground mb-8 max-w-xl">
+          Your journey begins here. Create your first itinerary and let TripWise help you plan unforgettable experiences. Click below to get started!
+        </p>
+        <Link href="/create" onClick={handleCreateClick}>
+          <Button className="bg-accent hover:bg-accent/90 text-lg px-8 py-4 rounded-full shadow-lg animate-pulse">
+            <Plus className="mr-3 h-6 w-6" />
             Create Your First Itinerary
           </Button>
         </Link>
