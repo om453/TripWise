@@ -30,14 +30,8 @@ interface ItineraryCardProps {
 }
 
 export function ItineraryCard({ itinerary, onFavoriteToggle, onDelete }: ItineraryCardProps) {
-  const { id, title, destination, startDate, endDate, photo, photoHint, category, isFavorite } = itinerary;
+  const { id, title, destination, startDate, endDate, photo, photoHint, categories, isFavorite } = itinerary;
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-
-  const categoryStyles = {
-    adventure: 'bg-orange-100 text-orange-800 border-orange-200',
-    leisure: 'bg-blue-100 text-blue-800 border-blue-200',
-    work: 'bg-gray-100 text-gray-800 border-gray-200',
-  };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -51,7 +45,7 @@ export function ItineraryCard({ itinerary, onFavoriteToggle, onDelete }: Itinera
         <Link href={`/itineraries/${id}`} className="block">
           <div className="aspect-video relative">
             <Image
-              src={photo}
+              src={photo || 'https://placehold.co/600x400.png'}
               alt={title}
               fill
               className="object-cover"
@@ -60,9 +54,11 @@ export function ItineraryCard({ itinerary, onFavoriteToggle, onDelete }: Itinera
           </div>
         </Link>
       </CardHeader>
-      <CardContent className="flex-grow p-4">
-        <div className="flex justify-between items-start mb-2">
-            <Badge variant="outline" className={cn("capitalize", categoryStyles[category])}>{category}</Badge>
+      <CardContent className="flex-1 flex flex-col gap-2 p-4">
+        <div className="flex flex-wrap gap-2 mb-2">
+          {categories && categories.length > 0 && categories.map((cat) => (
+            <Badge key={cat} variant="outline" className="capitalize bg-orange-100 text-orange-800 border-orange-200">{cat}</Badge>
+          ))}
         </div>
         <Link href={`/itineraries/${id}`} className="group">
           <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors">{title}</CardTitle>

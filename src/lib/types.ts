@@ -1,4 +1,5 @@
 export interface Itinerary extends ItineraryData {
+  category: any;
   id: string;
   activities: Activity[];
   isFavorite: boolean;
@@ -10,7 +11,7 @@ export interface ItineraryData {
   destination: string;
   startDate: string;
   endDate: string;
-  category: 'adventure' | 'leisure' | 'work';
+  categories: string[];
   photo: string;
   description: string;
   activities?: Activity[];

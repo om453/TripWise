@@ -1,4 +1,4 @@
-# **App Name**: TripWise
+# **App Name**: tripwise
 
 ## Core Features:
 

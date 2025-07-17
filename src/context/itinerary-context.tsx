@@ -2,8 +2,14 @@
 
 import * as React from 'react';
 import type { Itinerary, ItineraryData } from '@/lib/types';
-import { createItinerary, deleteItineraryApi } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  addItineraryToFirestore,
+  getUserItinerariesFromFirestore,
+  deleteItineraryFromFirestore,
+  updateItineraryInFirestore,
+} from '@/lib/data';
 
 interface ItineraryContextType {
   itineraries: Itinerary[];
@@ -17,38 +23,59 @@ const ItineraryContext = React.createContext<ItineraryContextType | undefined>(u
 
 export function ItineraryProvider({ children }: { children: React.ReactNode }) {
   const [itineraries, setItineraries] = React.useState<Itinerary[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true); 
+  const [isLoading, setIsLoading] = React.useState(true);
+  const { user, loading: authLoading } = useAuth();
 
+  // Fetch itineraries from Firestore when user logs in
   React.useEffect(() => {
-    setItineraries([]); // Always start empty, no localStorage or demo data
-    setIsLoading(false);
-  }, []);
-
-  React.useEffect(() => {
-    if(!isLoading) {
-      // localStorage.setItem('itineraries', JSON.stringify(itineraries)); // Removed localStorage
+    if (!user) {
+      setItineraries([]);
+      setIsLoading(false);
+      return;
     }
-  }, [itineraries, isLoading]);
+    setIsLoading(true);
+    getUserItinerariesFromFirestore(user.uid)
+      .then((data) => setItineraries(data))
+      .finally(() => setIsLoading(false));
+  }, [user]);
 
-  const toggleFavorite = (id: string) => {
-    setItineraries(prev =>
-      prev.map(it =>
-        it.id === id ? { ...it, isFavorite: !it.isFavorite } : it
-      )
-    );
-  };
-  
   const addItinerary = async (data: ItineraryData) => {
-    const newItinerary = createItinerary({
-      ...data,
-      activities: [],
-    });
-    setItineraries(prev => [newItinerary, ...prev]);
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const id = await addItineraryToFirestore(user.uid, data);
+      const newItinerary: Itinerary = {
+        id,
+        ...data,
+        isFavorite: false,
+        activities: data.activities || [],
+        photoHint: data.destination.split(',')[0].toLowerCase(),
+        category: undefined
+      };
+      setItineraries((prev) => [newItinerary, ...prev]);
+    } catch (error) {
+      console.error('Failed to add itinerary to Firestore:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const deleteItinerary = (id: string) => {
-    deleteItineraryApi(id); // This function is now synchronous but keeping the name
-    setItineraries(prev => prev.filter(it => it.id !== id));
+  const deleteItinerary = async (id: string) => {
+    if (!user) return;
+    setIsLoading(true);
+    await deleteItineraryFromFirestore(user.uid, id);
+    setItineraries((prev) => prev.filter((it) => it.id !== id));
+    setIsLoading(false);
+  };
+
+  const toggleFavorite = async (id: string) => {
+    if (!user) return;
+    const itinerary = itineraries.find((it) => it.id === id);
+    if (!itinerary) return;
+    const updated = { ...itinerary, isFavorite: !itinerary.isFavorite };
+    setItineraries((prev) => prev.map((it) => (it.id === id ? updated : it)));
+    await updateItineraryInFirestore(user.uid, id, { isFavorite: updated.isFavorite as any });
   };
 
   return (

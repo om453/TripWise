@@ -28,13 +28,17 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useItinerary } from '@/context/itinerary-context';
 import { useState } from 'react';
+import { storage } from '@/lib/utils';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+const TAG_OPTIONS = ['Leisure', 'Adventure', 'Work'];
 
 const formSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters.'),
   destination: z.string().min(2, 'Destination is required.'),
   startDate: z.string().refine(val => !isNaN(Date.parse(val)), { message: 'Invalid start date' }),
   endDate: z.string().refine(val => !isNaN(Date.parse(val)), { message: 'Invalid end date' }),
-  category: z.enum(['adventure', 'leisure', 'work']),
+  categories: z.array(z.string()).min(1, 'Select at least one category.'),
   description: z.string().min(10, 'Description must be at least 10 characters.'),
   photo: z.string().url('Must be a valid URL.'),
 });
@@ -44,6 +48,7 @@ export function ItineraryForm() {
   const router = useRouter();
   const { addItinerary } = useItinerary();
   const [isLoading, setIsLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,9 +57,9 @@ export function ItineraryForm() {
       destination: '',
       startDate: '',
       endDate: '',
-      category: 'leisure',
+      categories: [],
       description: '',
-      photo: 'https://placehold.co/600x400.png',
+      photo: '',
     },
   });
 
@@ -81,6 +86,36 @@ export function ItineraryForm() {
         setIsLoading(false);
       }
     })();
+  }
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    let timeoutId: NodeJS.Timeout | null = null;
+    try {
+      // Timeout after 30 seconds
+      const uploadPromise = new Promise<string>(async (resolve, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Upload timed out. Please try again.')), 30000);
+        try {
+          const storageRef = ref(storage, `itinerary-images/${Date.now()}-${file.name}`);
+          await uploadBytes(storageRef, file);
+          const url = await getDownloadURL(storageRef);
+          resolve(url);
+        } catch (err) {
+          reject(err);
+        }
+      });
+      const url = await uploadPromise;
+      form.setValue('photo', url);
+      toast({ title: 'Image uploaded!', description: 'Your image has been uploaded successfully.' });
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Upload Error', description: error?.message || 'Failed to upload image.' });
+      form.setValue('photo', '');
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+      setUploading(false);
+    }
   }
 
   return (
@@ -147,22 +182,46 @@ export function ItineraryForm() {
             </div>
             <FormField
               control={form.control}
-              name="category"
+              name="categories"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a trip type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="leisure">Leisure</SelectItem>
-                      <SelectItem value="adventure">Adventure</SelectItem>
-                      <SelectItem value="work">Work</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormLabel>Categories</FormLabel>
+                  <FormControl>
+                    <div className="flex flex-wrap gap-2">
+                      {TAG_OPTIONS.map((tag) => (
+                        <button
+                          type="button"
+                          key={tag}
+                          className={`px-3 py-1 rounded-full border transition-all ${field.value.includes(tag) ? 'bg-accent text-white border-accent' : 'bg-muted text-muted-foreground border-muted'}`}
+                          onClick={() => {
+                            if (field.value.includes(tag)) {
+                              field.onChange(field.value.filter((t: string) => t !== tag));
+                            } else {
+                              field.onChange([...field.value, tag]);
+                            }
+                          }}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                      {/* Custom tag input */}
+                      <input
+                        type="text"
+                        placeholder="Add custom tag"
+                        className="px-2 py-1 border rounded-full text-sm"
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                            e.preventDefault();
+                            if (!field.value.includes(e.currentTarget.value.trim())) {
+                              field.onChange([...field.value, e.currentTarget.value.trim()]);
+                            }
+                            e.currentTarget.value = '';
+                          }
+                        }}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormDescription>Select one or more categories or add your own.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -185,20 +244,34 @@ export function ItineraryForm() {
               name="photo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cover Photo URL</FormLabel>
+                  <FormLabel>Cover Photo</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://example.com/image.png" {...field} />
+                    <div className="flex flex-col gap-2">
+                      <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
+                      {field.value && (
+                        <img src={field.value} alt="Itinerary Cover" className="w-full h-40 object-cover rounded-lg border" />
+                      )}
+                      <Input type="hidden" {...field} />
+                    </div>
                   </FormControl>
-                  <FormDescription>Use a placeholder like https://placehold.co/600x400.png</FormDescription>
+                  <FormDescription>Upload a cover image for your itinerary.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="ml-auto" disabled={form.formState.isSubmitting || isLoading}>
-              {isLoading ? 'Creating...' : 'Create Itinerary'}
+            <Button type="submit" className="ml-auto" disabled={form.formState.isSubmitting || isLoading || uploading || !form.getValues('photo')}>
+              {uploading ? (
+                <>
+                  <span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-t-transparent border-accent rounded-full align-middle"></span>
+                  Uploading Image...
+                </>
+              ) : isLoading ? 'Creating...' : 'Create Itinerary'}
             </Button>
+            {uploading && (
+              <span className="text-accent text-sm ml-4">Uploading image, please wait...</span>
+            )}
           </CardFooter>
         </Card>
       </form>
