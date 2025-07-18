@@ -28,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useItinerary } from '@/context/itinerary-context';
 import { useState } from 'react';
+import { useRef } from 'react';
 
 const formSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters.'),
@@ -44,6 +45,9 @@ export function ItineraryForm() {
   const router = useRouter();
   const { addItinerary } = useItinerary();
   const [isLoading, setIsLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,14 +62,30 @@ export function ItineraryForm() {
     },
   });
 
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageUploading(true);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      setImageUrl(base64);
+      form.setValue('photo', base64);
+      setImageUploading(false);
+      toast({ title: 'Image uploaded!', description: 'Your image has been uploaded successfully.' });
+    };
+    reader.onerror = () => {
+      setImageUploading(false);
+      toast({ variant: 'destructive', title: 'Image Upload Error', description: 'Failed to upload image.' });
+    };
+    reader.readAsDataURL(file);
+  }
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     (async () => {
       setIsLoading(true);
       try {
         await addItinerary(values);
-        // Check if activities were added (location found)
-        // This logic assumes addItinerary returns nothing, so we check after
-        // If you want more robust feedback, refactor addItinerary to return a status
         toast({
           title: 'Itinerary Created!',
           description: 'Your new adventure has been saved.',
@@ -91,6 +111,31 @@ export function ItineraryForm() {
             <CardTitle>Itinerary Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Image upload section */}
+            <div className="flex flex-col items-center gap-4">
+              {imageUrl ? (
+                <img src={imageUrl} alt="Itinerary" className="w-full max-w-xs rounded-lg shadow" />
+              ) : (
+                <div className="w-full max-w-xs h-40 bg-muted flex items-center justify-center rounded-lg border border-dashed border-accent">
+                  <span className="text-muted-foreground">No image uploaded</span>
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={imageUploading}
+              >
+                {imageUploading ? 'Uploading...' : 'Upload Image'}
+              </Button>
+            </div>
             <FormField
               control={form.control}
               name="title"
@@ -176,20 +221,6 @@ export function ItineraryForm() {
                   <FormControl>
                     <Textarea placeholder="Describe your trip..." {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="photo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Cover Photo URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://example.com/image.png" {...field} />
-                  </FormControl>
-                  <FormDescription>Use a placeholder like https://placehold.co/600x400.png</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

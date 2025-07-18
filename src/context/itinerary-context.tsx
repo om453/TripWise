@@ -23,7 +23,7 @@ const ItineraryContext = React.createContext<ItineraryContextType | undefined>(u
 
 export function ItineraryProvider({ children }: { children: React.ReactNode }) {
   const [itineraries, setItineraries] = React.useState<Itinerary[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(true); 
   const { user, loading: authLoading } = useAuth();
 
   // Fetch itineraries from Firestore when user logs in
@@ -56,7 +56,7 @@ export function ItineraryProvider({ children }: { children: React.ReactNode }) {
       console.error('Failed to add itinerary to Firestore:', error);
       throw error;
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
 

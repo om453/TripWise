@@ -71,6 +71,10 @@ export function ItineraryList({ showOnlyFavorites = false }: { showOnlyFavorites
   }
 
   if (filteredItineraries.length === 0) {
+    // Only show the empty state if not showing only favorites
+    if (showOnlyFavorites) {
+      return null;
+    }
     const handleCreateClick = (e: React.MouseEvent) => {
       if (!user) {
         e.preventDefault();
@@ -82,7 +86,7 @@ export function ItineraryList({ showOnlyFavorites = false }: { showOnlyFavorites
         <Compass className="h-20 w-20 text-accent mb-6 animate-bounce" />
         <h2 className="text-4xl font-extrabold mb-4 text-accent drop-shadow-lg">Start Your Next Adventure!</h2>
         <p className="text-lg text-muted-foreground mb-8 max-w-xl">
-          Your journey begins here. Create your first itinerary and let TripWise help you plan unforgettable experiences. Click below to get started!
+          Your journey begins here. Create your first itinerary and let RoamFlow help you plan unforgettable experiences. Click below to get started!
         </p>
         <Link href="/create" onClick={handleCreateClick}>
           <Button className="bg-accent hover:bg-accent/90 text-lg px-8 py-4 rounded-full shadow-lg animate-pulse">

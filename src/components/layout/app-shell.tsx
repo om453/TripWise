@@ -79,13 +79,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <ClientSidebarProvider>
       <Sidebar>
         <SidebarHeader>
-          <div className="flex items-center gap-2 cursor-pointer" onClick={handleProtectedNav('/')}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" className="h-6 w-6 text-primary">
-                  <rect width="256" height="256" fill="none"></rect>
-                  <path d="M208,88H152a8,8,0,0,1-8-8V24a8,8,0,0,0-8-8H56A16,16,0,0,0,40,32V224a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V96A8,8,0,0,0,208,88Z" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"></path>
-                  <polyline points="144 88 208 88 208 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"></polyline>
-              </svg>
-            <h1 className="text-xl font-semibold">TripWise</h1>
+          <div className="flex items-center gap-2">
+            {/* Attractive logo and title */}
+            <img src="/mountain-logo.png" alt="TripWise Logo" className="h-8 w-8 rounded shadow" />
+            <h1 className="text-2xl font-extrabold text-accent tracking-tight drop-shadow">TripWise</h1>
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -139,7 +136,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
                     <Avatar>
-                      <AvatarImage src="https://placehold.co/40x40.png" />
+                      <AvatarImage src="/user-profile-placeholder.png" />
                       <AvatarFallback>{user ? userInitial : '?'}</AvatarFallback>
                     </Avatar>
                   </Button>
@@ -148,18 +145,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   {user ? (
                     <>
                       <DropdownMenuLabel>Welcome, {user.displayName || user.email}</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
+                  <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleLogout} className="text-destructive cursor-pointer">
                         Log out
-                      </DropdownMenuItem>
+                  </DropdownMenuItem>
                     </>
                   ) : (
                     <>
                       <DropdownMenuLabel>Sign up or Log in to your account</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
+                  <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
                         <Link href="/login">
-                          <User className="mr-2 h-4 w-4" />
+                    <User className="mr-2 h-4 w-4" />
                           Login
                         </Link>
                       </DropdownMenuItem>
@@ -168,7 +165,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                           <Plus className="mr-2 h-4 w-4" />
                           Sign up
                         </Link>
-                      </DropdownMenuItem>
+                  </DropdownMenuItem>
                     </>
                   )}
                 </DropdownMenuContent>

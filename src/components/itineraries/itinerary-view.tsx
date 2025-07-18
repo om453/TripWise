@@ -72,7 +72,6 @@ export function ItineraryView({ itinerary }: { itinerary: Itinerary }) {
                 </div>
             </CardContent>
           </Card>
-          
           <Card>
             <CardHeader>
               <CardTitle>About this trip</CardTitle>
@@ -81,32 +80,7 @@ export function ItineraryView({ itinerary }: { itinerary: Itinerary }) {
               <p className="text-muted-foreground">{itinerary.description}</p>
             </CardContent>
           </Card>
-          
-          <Card>
-              <CardHeader>
-                <CardTitle className='flex items-center gap-2'><List /> Planned Activities</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-4">
-                    {itinerary.activities.map((activity) => (
-                        <li key={activity.day} className="flex gap-4">
-                           <div className="flex flex-col items-center">
-                                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary text-primary-foreground font-bold">
-                                    {activity.day}
-                                </div>
-                                <div className="h-full w-px bg-border"></div>
-                           </div>
-                           <div className="pt-2">
-                               <p className="font-semibold">{activity.name}</p>
-                           </div>
-                        </li>
-                    ))}
-                </ul>
-              </CardContent>
-          </Card>
-
           <AiSuggestions location={itinerary.destination} activities={activitiesText} />
-
         </div>
       </div>
     </div>

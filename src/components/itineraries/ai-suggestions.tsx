@@ -36,6 +36,45 @@ export function AiSuggestions({ location, activities }: AiSuggestionsProps) {
     }
   };
 
+  function cleanSuggestion(text: string): string {
+    // Remove markdown, asterisks, and excessive formatting
+    return text
+      .replace(/\*\*/g, '') // remove bold
+      .replace(/\*/g, '') // remove asterisks
+      .replace(/\n+/g, ' ') // replace newlines with space
+      .replace(/\s+/g, ' ') // collapse whitespace
+      .replace(/\s([.,!?:;])/g, '$1') // remove space before punctuation
+      .trim();
+  }
+
+  function formatSuggestion(text: string): JSX.Element {
+    // Split into points by common delimiters
+    const points = text
+      .replace(/\*\*/g, '') // remove bold markdown
+      .split(/\* |\n|\d+\. /) // split on bullet or numbered list
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    // Bold place names or key attractions (first phrase before colon or dash)
+    return (
+      <ul className="list-disc pl-6 space-y-2">
+        {points.map((point, idx) => {
+          // Try to bold the first phrase before a colon or dash
+          const match = point.match(/^([^:–-]+)[:–-](.*)$/);
+          if (match) {
+            return (
+              <li key={idx}>
+                <span className="font-bold text-accent">{match[1].trim()}:</span>
+                <span> {match[2].trim()}</span>
+              </li>
+            );
+          }
+          return <li key={idx}>{point}</li>;
+        })}
+      </ul>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -68,7 +107,7 @@ export function AiSuggestions({ location, activities }: AiSuggestionsProps) {
 
         {suggestions && (
           <div className="prose prose-sm max-w-none text-muted-foreground">
-            <p>{suggestions}</p>
+            {formatSuggestion(suggestions)}
           </div>
         )}
       </CardContent>
