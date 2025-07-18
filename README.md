@@ -71,10 +71,6 @@ Visit [http://localhost:3000](http://localhost:3000)
 - Change accent colors in `tailwind.config.ts`
 - Edit AI prompt logic in `src/components/itineraries/ai-suggestions.tsx`
 
-
-## 📄 License
-[MIT](LICENSE)
-
 ---
 
 **TripWise** — Plan smarter, travel better.
