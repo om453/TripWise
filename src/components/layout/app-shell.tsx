@@ -85,7 +85,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <path d="M208,88H152a8,8,0,0,1-8-8V24a8,8,0,0,0-8-8H56A16,16,0,0,0,40,32V224a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V96A8,8,0,0,0,208,88Z" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"></path>
                   <polyline points="144 88 208 88 208 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"></polyline>
               </svg>
-            <h1 className="text-xl font-semibold">tripwise</h1>
+            <h1 className="text-xl font-semibold">TripWise</h1>
           </div>
         </SidebarHeader>
         <SidebarContent>

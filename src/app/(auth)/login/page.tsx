@@ -34,7 +34,7 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, email, password);
       toast({
         title: "Login successful!",
-        description: "Welcome back to tripwise.",
+        description: "Welcome back to TripWise.",
       });
       router.push("/");
     } catch (error: any) {

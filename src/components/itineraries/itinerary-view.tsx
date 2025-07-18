@@ -13,6 +13,12 @@ import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 
 export function ItineraryView({ itinerary }: { itinerary: Itinerary }) {
+    const categoryStyles = {
+        adventure: 'bg-orange-100 text-orange-800 border-orange-200',
+        leisure: 'bg-blue-100 text-blue-800 border-blue-200',
+        work: 'bg-gray-100 text-gray-800 border-gray-200',
+    };
+
     const activitiesText = itinerary.activities.map(a => a.name).join(', ');
 
   return (
@@ -60,16 +66,13 @@ export function ItineraryView({ itinerary }: { itinerary: Itinerary }) {
                 <div className="flex items-center gap-3">
                     <Tag className="h-8 w-8 text-primary" />
                     <div>
-                        <p className="text-muted-foreground">Categories</p>
-                        <div className="flex flex-wrap gap-2">
-                          {itinerary.categories && itinerary.categories.length > 0 && itinerary.categories.map((cat) => (
-                            <Badge key={cat} variant="outline" className="capitalize bg-orange-100 text-orange-800 border-orange-200">{cat}</Badge>
-                          ))}
-                        </div>
+                        <p className="text-muted-foreground">Category</p>
+                        <Badge variant="outline" className={cn("capitalize font-semibold", categoryStyles[itinerary.category])}>{itinerary.category}</Badge>
                     </div>
                 </div>
             </CardContent>
           </Card>
+          
           <Card>
             <CardHeader>
               <CardTitle>About this trip</CardTitle>
@@ -78,7 +81,32 @@ export function ItineraryView({ itinerary }: { itinerary: Itinerary }) {
               <p className="text-muted-foreground">{itinerary.description}</p>
             </CardContent>
           </Card>
+          
+          <Card>
+              <CardHeader>
+                <CardTitle className='flex items-center gap-2'><List /> Planned Activities</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-4">
+                    {itinerary.activities.map((activity) => (
+                        <li key={activity.day} className="flex gap-4">
+                           <div className="flex flex-col items-center">
+                                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary text-primary-foreground font-bold">
+                                    {activity.day}
+                                </div>
+                                <div className="h-full w-px bg-border"></div>
+                           </div>
+                           <div className="pt-2">
+                               <p className="font-semibold">{activity.name}</p>
+                           </div>
+                        </li>
+                    ))}
+                </ul>
+              </CardContent>
+          </Card>
+
           <AiSuggestions location={itinerary.destination} activities={activitiesText} />
+
         </div>
       </div>
     </div>

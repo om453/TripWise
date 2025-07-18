@@ -38,7 +38,6 @@ export function createItinerary(data: ItineraryData): Itinerary {
     isFavorite: false,
     activities: data.activities || [],
     photoHint: data.destination.split(',')[0].toLowerCase(),
-    category: undefined
   };
   // The context will handle adding this to its state and localStorage
   return newItinerary;

@@ -9,7 +9,7 @@ import { ThemeProvider } from '@/components/layout/theme-provider';
 import { AuthGuard } from '@/components/AuthGuard';
 
 export const metadata: Metadata = {
-  title: 'tripwise',
+  title: 'TripWise',
   description: 'A travel itinerary planner website',
 };
 

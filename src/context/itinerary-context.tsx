@@ -50,7 +50,6 @@ export function ItineraryProvider({ children }: { children: React.ReactNode }) {
         isFavorite: false,
         activities: data.activities || [],
         photoHint: data.destination.split(',')[0].toLowerCase(),
-        category: undefined
       };
       setItineraries((prev) => [newItinerary, ...prev]);
     } catch (error) {

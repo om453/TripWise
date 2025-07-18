@@ -6,7 +6,6 @@ import { twMerge } from "tailwind-merge"
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -20,7 +19,6 @@ const firebaseConfig = {
 const firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 export const auth = getAuth(firebaseApp);
 export const firestore = getFirestore(firebaseApp);
-export const storage = getStorage(firebaseApp);
 export { firebaseApp };
 
 export function cn(...inputs: ClassValue[]) {
