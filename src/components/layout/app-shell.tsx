@@ -45,6 +45,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user } = useAuth() as { user: FirebaseUser | null };
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
 
   // Helper to handle protected navigation
   const handleProtectedNav = (href: string) => (e: React.MouseEvent) => {
@@ -132,44 +134,46 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   </Button>
               </Link>
               <ThemeToggle />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <Avatar>
-                      <AvatarImage src="/user-profile-placeholder.png" />
-                      <AvatarFallback>{user ? userInitial : '?'}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {user ? (
-                    <>
-                      <DropdownMenuLabel>Welcome, {user.displayName || user.email}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleLogout} className="text-destructive cursor-pointer">
-                        Log out
-                  </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <>
-                      <DropdownMenuLabel>Sign up or Log in to your account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href="/login">
-                    <User className="mr-2 h-4 w-4" />
-                          Login
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/signup">
-                          <Plus className="mr-2 h-4 w-4" />
-                          Sign up
-                        </Link>
-                  </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {mounted && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <Avatar>
+                        <AvatarImage src="/user-profile-placeholder.png" />
+                        <AvatarFallback>{user ? userInitial : '?'}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {user ? (
+                      <>
+                        <DropdownMenuLabel>Welcome, {user.displayName || user.email}</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleLogout} className="text-destructive cursor-pointer">
+                          Log out
+                        </DropdownMenuItem>
+                      </>
+                    ) : (
+                      <>
+                        <DropdownMenuLabel>Sign up or Log in to your account</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link href="/login">
+                            <User className="mr-2 h-4 w-4" />
+                            Login
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/signup">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Sign up
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6 lg:p-8">

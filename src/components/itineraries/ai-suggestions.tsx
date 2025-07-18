@@ -75,6 +75,22 @@ export function AiSuggestions({ location, activities }: AiSuggestionsProps) {
     );
   }
 
+  function highlightDynamicPlaces(text: string): JSX.Element {
+    // Find all capitalized words and multi-word capitalized phrases
+    const placeRegex = /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/g;
+    let result = text;
+    // Collect unique matches
+    const matches = Array.from(new Set(text.match(placeRegex)));
+    matches.forEach(place => {
+      // Avoid highlighting generic words
+      if (place.length > 2 && !['The', 'And', 'For', 'With', 'From', 'Your', 'This', 'Here', 'You', 'Can', 'More', 'Info', 'Tour', 'Visit', 'Enjoy', 'Relax', 'Take', 'Food', 'Art', 'City', 'Trip', 'Tip', 'Based', 'Plans', 'Unique', 'Official', 'Website', 'Of', 'In', 'On', 'To', 'A', 'An', 'Or', 'At', 'By', 'As', 'Is', 'Are', 'Be', 'It', 'Will', 'Was', 'Were', 'Has', 'Have', 'Had', 'Do', 'Did', 'Does', 'Not', 'But', 'If', 'So', 'Such', 'That', 'Which', 'Who', 'Whom', 'Whose', 'Where', 'When', 'Why', 'How'].includes(place)) {
+        const regex = new RegExp(`(${place})`, 'g');
+        result = result.replace(regex, '<span class="font-bold text-accent">$1</span>');
+      }
+    });
+    return <span dangerouslySetInnerHTML={{ __html: result }} />;
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -106,8 +122,13 @@ export function AiSuggestions({ location, activities }: AiSuggestionsProps) {
         )}
 
         {suggestions && (
-          <div className="prose prose-sm max-w-none text-muted-foreground">
-            {formatSuggestion(suggestions)}
+          <div className="prose prose-lg max-w-none text-muted-foreground bg-accent/10 border border-accent/30 rounded-lg p-6 shadow-sm mt-4">
+            <span className="block text-lg mb-2 font-semibold text-accent">✨ Here’s a personalized travel tip for you:</span>
+            <p className="leading-relaxed">
+              {highlightDynamicPlaces(
+                cleanSuggestion(suggestions)
+              )}
+            </p>
           </div>
         )}
       </CardContent>
